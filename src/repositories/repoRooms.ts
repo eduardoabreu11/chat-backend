@@ -1,84 +1,56 @@
-import { db } from "../database/postgresql.js";
+import db from "../database/postgresql.js";
 
 interface CreateRoomDTO {
   code: string;
   name?: string;
-  is_global?: number;
+  is_global?: boolean;
 }
 
 interface Room {
   id: number;
   code: string;
   name: string | null;
-  is_global: number;
+  is_global: boolean;
   created_at: string;
 }
 
 export class RepositoryRooms {
   async findAll(): Promise<Room[]> {
-    return new Promise((resolve, reject) => {
-      db.all("SELECT * FROM rooms ORDER BY id ASC", [], (error, rows) => {
-        if (error) {
-          reject(error);
-          return;
-        }
+    const result = await db.query(
+      "SELECT * FROM rooms ORDER BY id ASC"
+    );
 
-        resolve(rows as Room[]);
-      });
-    });
+    return result.rows as Room[];
   }
 
   async findByCode(code: string): Promise<Room | undefined> {
-    return new Promise((resolve, reject) => {
-      db.get("SELECT * FROM rooms WHERE code = ?", [code], (error, row) => {
-        if (error) {
-          reject(error);
-          return;
-        }
+    const result = await db.query(
+      "SELECT * FROM rooms WHERE code = $1",
+      [code]
+    );
 
-        resolve(row as Room | undefined);
-      });
-    });
+    return result.rows[0] as Room | undefined;
   }
 
   async findById(id: number): Promise<Room | undefined> {
-    return new Promise((resolve, reject) => {
-      db.get("SELECT * FROM rooms WHERE id = ?", [id], (error, row) => {
-        if (error) {
-          reject(error);
-          return;
-        }
+    const result = await db.query(
+      "SELECT * FROM rooms WHERE id = $1",
+      [id]
+    );
 
-        resolve(row as Room | undefined);
-      });
-    });
+    return result.rows[0] as Room | undefined;
   }
 
-  async create({ code, name, is_global = 0 }: CreateRoomDTO): Promise<Room> {
-    return new Promise((resolve, reject) => {
-      db.run(
-        "INSERT INTO rooms (code, name, is_global) VALUES (?, ?, ?)",
-        [code, name ?? null, is_global],
-        function (error) {
-          if (error) {
-            reject(error);
-            return;
-          }
+  async create({ code, name, is_global = false }: CreateRoomDTO): Promise<Room> {
+    const result = await db.query(
+      `
+      INSERT INTO rooms (code, name, is_global)
+      VALUES ($1, $2, $3)
+      RETURNING *
+      `,
+      [code, name ?? null, is_global]
+    );
 
-          db.get(
-            "SELECT * FROM rooms WHERE id = ?",
-            [this.lastID],
-            (selectError, row) => {
-              if (selectError) {
-                reject(selectError);
-                return;
-              }
-
-              resolve(row as Room);
-            },
-          );
-        },
-      );
-    });
+    return result.rows[0] as Room;
   }
 }

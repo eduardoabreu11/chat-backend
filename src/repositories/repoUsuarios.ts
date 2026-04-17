@@ -1,4 +1,4 @@
-import { db } from "../database/postgresql.js";
+import db from "../database/postgresql.js";
 
 interface CreateUsuarioDTO {
   name: string;
@@ -16,56 +16,33 @@ interface User {
 
 export class RepositoryUsuarios {
   async findByEmail(email: string): Promise<User | undefined> {
-    return new Promise((resolve, reject) => {
-      db.get("SELECT * FROM users WHERE email = ?", [email], (error, row) => {
-        if (error) {
-          reject(error);
-          return;
-        }
+    const result = await db.query(
+      "SELECT * FROM users WHERE email = $1",
+      [email]
+    );
 
-        resolve(row as User | undefined);
-      });
-    });
+    return result.rows[0] as User | undefined;
   }
 
   async findById(id: number): Promise<User | undefined> {
-    return new Promise((resolve, reject) => {
-      db.get("SELECT * FROM users WHERE id = ?", [id], (error, row) => {
-        if (error) {
-          reject(error);
-          return;
-        }
+    const result = await db.query(
+      "SELECT * FROM users WHERE id = $1",
+      [id]
+    );
 
-        resolve(row as User | undefined);
-      });
-    });
+    return result.rows[0] as User | undefined;
   }
 
   async create({ name, email, password }: CreateUsuarioDTO): Promise<User> {
-    return new Promise((resolve, reject) => {
-      db.run(
-        "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
-        [name, email, password],
-        function (error) {
-          if (error) {
-            reject(error);
-            return;
-          }
+    const result = await db.query(
+      `
+      INSERT INTO users (name, email, password)
+      VALUES ($1, $2, $3)
+      RETURNING *
+      `,
+      [name, email, password]
+    );
 
-          db.get(
-            "SELECT * FROM users WHERE id = ?",
-            [this.lastID],
-            (selectError, row) => {
-              if (selectError) {
-                reject(selectError);
-                return;
-              }
-
-              resolve(row as User);
-            },
-          );
-        },
-      );
-    });
+    return result.rows[0] as User;
   }
 }
