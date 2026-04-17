@@ -1,4 +1,4 @@
-import { db } from "../database/connection.js";
+import { db } from "../database/postgresql.js";
 
 interface CreateMensagemDTO {
   user_id: number;
@@ -44,7 +44,7 @@ export class RepositoryMenssagens {
           }
 
           resolve(rows as MessageWithAuthor[]);
-        }
+        },
       );
     });
   }
@@ -74,9 +74,9 @@ export class RepositoryMenssagens {
               }
 
               resolve(row as Message);
-            }
+            },
           );
-        }
+        },
       );
     });
   }

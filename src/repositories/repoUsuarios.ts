@@ -1,4 +1,4 @@
-import { db } from "../database/connection.js";
+import { db } from "../database/postgresql.js";
 
 interface CreateUsuarioDTO {
   name: string;
@@ -17,35 +17,27 @@ interface User {
 export class RepositoryUsuarios {
   async findByEmail(email: string): Promise<User | undefined> {
     return new Promise((resolve, reject) => {
-      db.get(
-        "SELECT * FROM users WHERE email = ?",
-        [email],
-        (error, row) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-
-          resolve(row as User | undefined);
+      db.get("SELECT * FROM users WHERE email = ?", [email], (error, row) => {
+        if (error) {
+          reject(error);
+          return;
         }
-      );
+
+        resolve(row as User | undefined);
+      });
     });
   }
 
   async findById(id: number): Promise<User | undefined> {
     return new Promise((resolve, reject) => {
-      db.get(
-        "SELECT * FROM users WHERE id = ?",
-        [id],
-        (error, row) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-
-          resolve(row as User | undefined);
+      db.get("SELECT * FROM users WHERE id = ?", [id], (error, row) => {
+        if (error) {
+          reject(error);
+          return;
         }
-      );
+
+        resolve(row as User | undefined);
+      });
     });
   }
 
@@ -70,9 +62,9 @@ export class RepositoryUsuarios {
               }
 
               resolve(row as User);
-            }
+            },
           );
-        }
+        },
       );
     });
   }

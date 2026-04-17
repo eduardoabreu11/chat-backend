@@ -1,4 +1,4 @@
-import { db } from "../database/connection.js";
+import { db } from "../database/postgresql.js";
 
 interface CreateRoomDTO {
   code: string;
@@ -30,35 +30,27 @@ export class RepositoryRooms {
 
   async findByCode(code: string): Promise<Room | undefined> {
     return new Promise((resolve, reject) => {
-      db.get(
-        "SELECT * FROM rooms WHERE code = ?",
-        [code],
-        (error, row) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-
-          resolve(row as Room | undefined);
+      db.get("SELECT * FROM rooms WHERE code = ?", [code], (error, row) => {
+        if (error) {
+          reject(error);
+          return;
         }
-      );
+
+        resolve(row as Room | undefined);
+      });
     });
   }
 
   async findById(id: number): Promise<Room | undefined> {
     return new Promise((resolve, reject) => {
-      db.get(
-        "SELECT * FROM rooms WHERE id = ?",
-        [id],
-        (error, row) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-
-          resolve(row as Room | undefined);
+      db.get("SELECT * FROM rooms WHERE id = ?", [id], (error, row) => {
+        if (error) {
+          reject(error);
+          return;
         }
-      );
+
+        resolve(row as Room | undefined);
+      });
     });
   }
 
@@ -83,9 +75,9 @@ export class RepositoryRooms {
               }
 
               resolve(row as Room);
-            }
+            },
           );
-        }
+        },
       );
     });
   }
