@@ -6,6 +6,11 @@ interface CreateMensagemDTO {
   text: string;
 }
 
+interface UpdateMensagemDTO {
+  id: number;
+  text: string;
+}
+
 interface Message {
   id: number;
   user_id: number;
@@ -41,6 +46,15 @@ export class RepositoryMenssagens {
     return result.rows as MessageWithAuthor[];
   }
 
+  async findById(id: number): Promise<Message | undefined> {
+    const result = await db.query(
+      "SELECT * FROM messages WHERE id = $1",
+      [id]
+    );
+
+    return result.rows[0] as Message | undefined;
+  }
+
   async create({
     user_id,
     room_id,
@@ -56,5 +70,26 @@ export class RepositoryMenssagens {
     );
 
     return result.rows[0] as Message;
+  }
+
+  async update({ id, text }: UpdateMensagemDTO): Promise<Message> {
+    const result = await db.query(
+      `
+      UPDATE messages
+      SET text = $1
+      WHERE id = $2
+      RETURNING *
+      `,
+      [text, id]
+    );
+
+    return result.rows[0] as Message;
+  }
+
+  async delete(id: number): Promise<void> {
+    await db.query(
+      "DELETE FROM messages WHERE id = $1",
+      [id]
+    );
   }
 }

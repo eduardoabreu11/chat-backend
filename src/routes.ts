@@ -60,4 +60,12 @@ router.post("/messages", (req, res) =>
   controllerMessages.create(req, res)
 );
 
+router.put("/messages/:id", (req, res) =>
+  controllerMessages.update(req, res)
+);
+
+router.delete("/messages/:id", (req, res) =>
+  controllerMessages.delete(req, res)
+);
+
 export default router;
