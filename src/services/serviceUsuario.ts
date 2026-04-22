@@ -13,6 +13,7 @@ interface LoginDTO {
 }
 
 export class ServiceUsuarios {
+
   private repository = new RepositoryUsuarios();
 
   async register({ name, email, password }: RegisterDTO) {
@@ -56,4 +57,20 @@ export class ServiceUsuarios {
       token,
     };
   }
+
+ async profile(userId: number) {
+  const user = await this.repository.findById(userId);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return user;
 }
+
+
+
+
+
+}
+

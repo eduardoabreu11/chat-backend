@@ -15,6 +15,7 @@ interface Room {
 }
 
 export class RepositoryRooms {
+  
   async findAll(): Promise<Room[]> {
     const result = await db.query(
       "SELECT * FROM rooms ORDER BY id ASC"

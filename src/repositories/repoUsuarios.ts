@@ -15,6 +15,8 @@ interface User {
 }
 
 export class RepositoryUsuarios {
+
+
   async findByEmail(email: string): Promise<User | undefined> {
     const result = await db.query(
       "SELECT * FROM users WHERE email = $1",
@@ -26,7 +28,7 @@ export class RepositoryUsuarios {
 
   async findById(id: number): Promise<User | undefined> {
     const result = await db.query(
-      "SELECT * FROM users WHERE id = $1",
+      "SELECT id, name, email FROM users WHERE id = $1",
       [id]
     );
 

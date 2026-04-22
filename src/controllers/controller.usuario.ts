@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import { ServiceUsuarios } from "../services/serviceUsuario.js";
 
+interface AuthRequest extends Request {
+  userId?: number;
+}
+
 export class ControllerUsuario {
   async register(req: Request, res: Response) {
     try {
@@ -42,4 +46,28 @@ export class ControllerUsuario {
       });
     }
   }
+
+  async profile(req: AuthRequest, res: Response) {
+    try {
+      const userId = req.userId;
+
+      if (!userId) {
+        return res.status(401).json({
+          error: "Usuário não autenticado",
+        });
+      }
+
+      const serviceUsuarios = new ServiceUsuarios();
+      const result = await serviceUsuarios.profile(userId);
+
+      return res.json(result);
+    } catch (error) {
+      return res.status(401).json({
+        error: error instanceof Error ? error.message : "Erro interno",
+      });
+    }
+  }
+
+
+ 
 }
